@@ -3,10 +3,23 @@ services:
   - docker
 
 before_install:
-  - docker build -t nklein/react-test -f ./client/Dockerfile.dev ./client
+  - docker build -t nklein/docker-react -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run nklein/react_test npm test -- -coverage
+  - docker run nklein/docker-react npm run test -- --coverage
+
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-2"
+  app: "multi-docker"
+  env: "MultiDocker-env"
+  bucket_name: "elasticbeanstalk-us-east-2-799371115323"
+  bucket_path: "multi-docker"
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: "$AWS_SECRET_KEY"
 
 after_success:
   - docker build -t nklein/multi-client ./client
